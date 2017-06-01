@@ -10,23 +10,22 @@ ENV LANG='en_US.UTF-8' \
 ### Install Application
 RUN apk upgrade --no-cache && \
     apk add --no-cache --virtual=run-deps \
-      nginx \
-      nginx-mod-http-headers-more && \
+      su-exec && \
     rm -rf /tmp/* \
            /var/cache/apk/*  \
            /var/tmp/*
     
 # Expose volumes
-VOLUME ["/www","/config","/logs"]
+VOLUME ["/data"]
 
 # Expose ports
 EXPOSE 80
 EXPOSE 443
 
 ### Running User: not used, managed by docker-entrypoint.sh
-#USER nginx
+#USER syncthing
 
-### Start nginx
+### Start syncthing
 COPY ./docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["nginx"]
+CMD ["syncthing"]

@@ -77,11 +77,15 @@ AutoUpgrade
 ConfigureUser
 
 if [ "$1" = 'syncthing' ]; then
-    if [ -d config ]; then
+    if [ -d /config ]; then
 	  /bin/chown -R "${MYUSER}":"${MYUSER}" /config
-      /bin/chmod 0775 /config
+      /bin/chmod -R 0775 /config
     fi
-    exec su-exec "${MYUSER}" "syncthing -no-browser -no-restart -gui-address=0.0.0.0:8384 -home=/config"
+    if [ -d /home/${MYUSER}/Sync ]; then
+	  /bin/chown -R "${MYUSER}":"${MYUSER}" /home/${MYUSER}/Sync
+      /bin/chmod -R 0775 /home/${MYUSER}/Sync
+    fi
+    exec su-exec "${MYUSER}" syncthing -no-browser -no-restart -gui-address=0.0.0.0:8384 -home=/config
 fi
 
 exec "$@"

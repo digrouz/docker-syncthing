@@ -81,7 +81,7 @@ if [ "$1" = 'syncthing' ]; then
 	  /bin/chown -R "${MYUSER}":"${MYUSER}" /config
       /bin/chmod 0775 /config
     fi
-    exec syncthing -no-browser -no-restart -gui-address=0.0.0.0:8384 -home=/config 
+    exec su-exec "${MYUSER}" "syncthing -no-browser -no-restart -gui-address=0.0.0.0:8384 -home=/config"
 fi
 
 exec "$@"

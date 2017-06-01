@@ -17,11 +17,12 @@ RUN apk upgrade --no-cache && \
            /var/tmp/*
     
 # Expose volumes
-VOLUME ["/data","/config"]
+VOLUME ["/config"]
 
 # Expose ports
 EXPOSE 8384 
-EXPOSE 443
+EXPOSE 22000
+EXPOSE 21025/udp
 
 ### Running User: not used, managed by docker-entrypoint.sh
 #USER syncthing

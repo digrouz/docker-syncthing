@@ -22,7 +22,7 @@ VOLUME ["/config"]
 # Expose ports
 EXPOSE 8384 
 EXPOSE 22000
-EXPOSE 21025/udp
+EXPOSE 21027/udp
 
 ### Running User: not used, managed by docker-entrypoint.sh
 #USER syncthing

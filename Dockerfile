@@ -10,16 +10,17 @@ ENV LANG='en_US.UTF-8' \
 ### Install Application
 RUN apk upgrade --no-cache && \
     apk add --no-cache --virtual=run-deps \
+	  syncthing \
       su-exec && \
     rm -rf /tmp/* \
            /var/cache/apk/*  \
            /var/tmp/*
     
 # Expose volumes
-VOLUME ["/data"]
+VOLUME ["/data","/config"]
 
 # Expose ports
-EXPOSE 80
+EXPOSE 8384 
 EXPOSE 443
 
 ### Running User: not used, managed by docker-entrypoint.sh

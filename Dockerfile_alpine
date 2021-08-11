@@ -1,0 +1,55 @@
+FROM alpine:latest
+LABEL maintainer "DI GREGORIO Nicolas <nicolas.digregorio@gmail.com>"
+
+ARG SYNCTHING_VERSION="1.18.1"
+
+### Environment variables
+ENV LANG='en_US.UTF-8' \
+    LANGUAGE='en_US.UTF-8' \
+    TERM='xterm' \
+    APPUSER='syncthing \
+    APPGID='10013' \
+    APPUID='10013' \
+    SYNCTHING_VERSION="${SYNCTHING_VERSION}" 
+
+# Copy config files
+COPY root/ /
+
+### Install Application
+RUN set -x && \
+    chmod 1777 /tmp && \
+    . /usr/local/bin/docker-entrypoint-functions.sh && \
+    MYUSER="${APPUSER}" && \
+    MYUID="${APPUID}" && \
+    MYGID="${APPGID}" && \
+    ConfigureUser && \
+    apk update --no-cache && \apk upgrade --no-cache && \
+    apk add --no-cache --virtual=build-deps \
+      curl \
+    && \
+    curl -SsL  https://github.com/syncthing/syncthing/releases/download/v${SYNCTHING_VERSION}/syncthing-linux-amd64-v{$SYNCTHING_VERSION}.tar.gz -o /tmp/syncthing.tar.gz && \
+    tar xzf /tmp/syncthing.tar.gz -C /tmp && \
+    mv syncthing-linux-amd64-v{$SYNCTHING_VERSION} /tmp/syncthing && \
+    apk add --no-cache --virtual=run-deps \
+      su-exec \
+    && \
+    mkdir -p /config && \
+    mkdir -p /docker-entrypoint.d && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh && \
+    ln -snf /usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh && \
+    rm -rf /tmp/* \
+           /var/cache/apk/*  \
+           /var/tmp/*
+    
+# Expose volumes
+VOLUME ["/config"]
+
+# Expose ports
+EXPOSE ["8384","22000","21027/udp"]
+
+### Running User: not used, managed by docker-entrypoint.sh
+#USER syncthing
+
+### Start syncthing
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["syncthing"]

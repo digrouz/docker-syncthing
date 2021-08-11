@@ -18,7 +18,7 @@ if [ "${1}" == 'syncthing' ]; then
   RunDropletEntrypoint
 
   DockLog "Starting app: ${1}"
-  exec su-exec "${MYUSER}" syncthing -no-browser -no-restart -gui-address=0.0.0.0:8384 -home=/config
+  exec su-exec "${MYUSER}" /opt/syncthing/syncthing -no-browser -no-restart -gui-address=0.0.0.0:8384 -home=/config
 else
   DockLog "Starting app: ${@}"
   exec "$@"

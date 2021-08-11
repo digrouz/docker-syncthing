@@ -32,6 +32,7 @@ RUN set -x && \
     mv /tmp/syncthing-linux-amd64-v${SYNCTHING_VERSION} /opt/syncthing && \
     apk add --no-cache --virtual=run-deps \
       bash \
+      ca-certificates \ 
       su-exec \
       tzdata \
     && \

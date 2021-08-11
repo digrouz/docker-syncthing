@@ -33,6 +33,7 @@ RUN set -x && \
     apk add --no-cache --virtual=run-deps \
       bash \
       su-exec \
+      tzdata \
     && \
     mkdir -p /config && \
     mkdir -p /docker-entrypoint.d && \

@@ -27,9 +27,9 @@ RUN set -x && \
     apk add --no-cache --virtual=build-deps \
       curl \
     && \
-    curl -SsL  https://github.com/syncthing/syncthing/releases/download/v${SYNCTHING_VERSION}/syncthing-linux-amd64-v{$SYNCTHING_VERSION}.tar.gz -o /tmp/syncthing.tar.gz && \
+    curl -SsL  https://github.com/syncthing/syncthing/releases/download/v${SYNCTHING_VERSION}/syncthing-linux-amd64-v${SYNCTHING_VERSION}.tar.gz -o /tmp/syncthing.tar.gz && \
     tar xzf /tmp/syncthing.tar.gz -C /tmp && \
-    mv syncthing-linux-amd64-v{$SYNCTHING_VERSION} /tmp/syncthing && \
+    mv syncthing-linux-amd64-v${SYNCTHING_VERSION} /tmp/syncthing && \
     apk add --no-cache --virtual=run-deps \
       su-exec \
     && \

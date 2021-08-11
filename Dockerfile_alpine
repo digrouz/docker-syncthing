@@ -8,8 +8,8 @@ ENV LANG='en_US.UTF-8' \
     LANGUAGE='en_US.UTF-8' \
     TERM='xterm' \
     APPUSER='syncthing \
-    APPGID='10013' \
-    APPUID='10013' \
+    APPGID='10019' \
+    APPUID='10019' \
     SYNCTHING_VERSION="${SYNCTHING_VERSION}" 
 
 # Copy config files

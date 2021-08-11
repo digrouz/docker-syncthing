@@ -45,7 +45,7 @@ RUN set -x && \
 VOLUME ["/config"]
 
 # Expose ports
-EXPOSE ["8384","22000","21027/udp"]
+EXPOSE 8384 22000 21027/udp
 
 ### Running User: not used, managed by docker-entrypoint.sh
 #USER syncthing

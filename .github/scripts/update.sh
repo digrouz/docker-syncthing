@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -x
 
 SYNCTHING_URL="https://api.github.com/repos/syncthing/syncthing/releases"
 

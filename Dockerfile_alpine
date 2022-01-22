@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.15.0
 LABEL maintainer "DI GREGORIO Nicolas <nicolas.digregorio@gmail.com>"
 
 ARG SYNCTHING_VERSION='1.19.0-rc.1'

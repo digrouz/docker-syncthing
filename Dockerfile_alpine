@@ -1,7 +1,7 @@
 FROM alpine:3.17.0
 LABEL maintainer "DI GREGORIO Nicolas <nicolas.digregorio@gmail.com>"
 
-ARG SYNCTHING_VERSION='1.22.3-rc.1'
+ARG SYNCTHING_VERSION='1.22.3-rc.2'
 
 ### Environment variables
 ENV LANG='en_US.UTF-8' \

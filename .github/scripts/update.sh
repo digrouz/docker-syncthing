@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-set -x
 
 SYNCTHING_URL="https://api.github.com/repos/syncthing/syncthing/releases"
 
-FULL_LAST_VERSION=$(curl -SsL ${SYNCTHING_URL} | jq .[0].name -r)
+FULL_LAST_VERSION=$(curl -SsL ${SYNCTHING_URL} | \
+              jq -r -c '.[] | select( .prerelease == false ) | .tag_name' |\
+              head -1 \
+              )
 LAST_VERSION="${FULL_LAST_VERSION:1}"
 
 sed -i -e "s|SYNCTHING_VERSION='.*'|SYNCTHING_VERSION='${LAST_VERSION}'|" Dockerfile*

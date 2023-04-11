@@ -1,3 +1,5 @@
+# This is a basic workflow to help you get started with Actions
+
 name: auto-update-workflow
 
 # Controls when the action will run. 
@@ -11,7 +13,6 @@ jobs:
   auto-update-job:
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@main
         with:
           token: ${{ secrets.MYGITHUB_TOKEN }}
@@ -23,4 +24,3 @@ jobs:
         run: |
           echo "Run update.sh"
           bash .github/scripts/update.sh
-         

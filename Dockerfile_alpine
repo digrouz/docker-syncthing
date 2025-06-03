@@ -1,7 +1,7 @@
 FROM digrouz/alpine-s6:latest
 LABEL maintainer "DI GREGORIO Nicolas <nicolas.digregorio@gmail.com>"
 
-ARG SYNCTHING_VERSION='1.29.6'
+ARG SYNCTHING_VERSION='1.29.7'
 ARG SYNCTHING_ARCH='amd64'
 
 ### Environment variables

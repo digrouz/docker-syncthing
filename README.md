@@ -1,25 +1,29 @@
+# docker-syncthing
+
 [![auto-update-workflow](https://github.com/digrouz/docker-syncthing/actions/workflows/auto-update.yml/badge.svg)](https://github.com/digrouz/docker-syncthing/actions/workflows/auto-update.yml)
 [![dockerhub-workflow](https://github.com/digrouz/docker-syncthing/actions/workflows/dockerhub.yml/badge.svg)](https://github.com/digrouz/docker-syncthing/actions/workflows/dockerhub.yml)
 ![Docker Pulls](https://img.shields.io/docker/pulls/digrouz/syncthing)
 
-# docker-syncthing
 Install Syncthing into a Linux container
 
 ![syncthing](https://syncthing.net/img/logo-horizontal.svg)
 
 ## Tag
+
 Several tag are available:
+
 * latest: see alpine
 * alpine: [Dockerfile_alpine](https://github.com/digrouz/docker-syncthing/blob/master/Dockerfile_alpine)
 
 ## Description
 
-Syncthing replaces proprietary sync and cloud services with something open, trustworthy and decentralized. 
+Syncthing replaces proprietary sync and cloud services with something open, trustworthy and decentralized.
 Your data is your data alone and you deserve to choose where it is stored, if it is shared with some third party and how it's transmitted over the Internet.
 
 https://syncthing.net
 
 ## Usage
+
     docker create --name=syncthing  \
       -v <path to data folder>:/home/syncthing/Sync  \
       -v <path to config>:/config   \
@@ -31,7 +35,6 @@ https://syncthing.net
       -p 22000:22000 \
       -p 21027:21027/udp \
     digrouz/syncthing:latest
-
 
 ## Environment Variables
 
@@ -57,7 +60,7 @@ This variable is not mandatory and specifies the timezone to be configured withi
 
 * This container is built using [s6-overlay](https://github.com/just-containers/s6-overlay)
 * The docker entrypoint can upgrade operating system at each startup. To enable this feature, just add `-e AUTOUPGRADE=1` at container creation.
-* gui port: `8384` 
+* gui port: `8384`
 * sync port: `22000`
 * discovery port: `21027/udp`
 

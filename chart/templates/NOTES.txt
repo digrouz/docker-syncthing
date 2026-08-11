@@ -4,10 +4,12 @@ Your release is named: {{ .Release.Name }}
 
 To access Syncthing:
 
-{{- if .Values.ingress.enabled }}
-  Syncthing is available via Ingress:
-  {{- range .Values.ingress.hosts }}
-    http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- if .Values.ingress.webui.enabled }}
+  {{- if .Values.ingress.webui.host }}
+  Syncthing Web UI is available via Ingress:
+    http{{ if .Values.ingress.webui.tls }}s{{ end }}://{{ .Values.ingress.webui.host }}
+  {{- else }}
+  Syncthing Web UI is exposed via Service {{ .Release.Name }}-svc on port 8384.
   {{- end }}
 {{- end }}
 

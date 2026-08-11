@@ -10,7 +10,7 @@ metadata:
   {{- if .Values.ingress.webui.annotations }}
   annotations:
     {{- range $key, $value := .Values.ingress.webui.annotations }}
-    {{ $key }}: {{ $value }}
+    {{ $key }}: {{ $value | quote }}
     {{- end }}
   {{- end }}
 spec:
@@ -18,7 +18,9 @@ spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
   {{- end }}
   rules:
-  - host: {{ .Values.ingress.webui.host }}
+  - {{- if .Values.ingress.webui.host }}
+    host: {{ .Values.ingress.webui.host }}
+  {{- end }}
     http:
       paths:
       - path: /
@@ -28,41 +30,44 @@ spec:
             name: {{ .Release.Name }}-svc
             port:
               name: webui
-  {{- if .Values.ingress.webui.tls }}
+  {{- if and .Values.ingress.webui.tls .Values.ingress.webui.host }}
   tls:
     - hosts:
         - {{ .Values.ingress.webui.host }}
       secretName: {{ .Values.ingress.webui.host }}-tls
   {{- end }}
 {{- end }}
-{{- if .Values.ingress.sync.enabled }}
+{{- if .Values.ingress.discovery.enabled }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRouteUDP
 metadata:
   name: {{ .Release.Name }}-discovery-ingress
   namespace: {{ .Release.Namespace }}
-  annotations:
-    kubernetes.io/ingress.class: {{ .Values.ingress.ingressClassName }}
+  labels:
+    app.kubernetes.io/component: syncthing
 spec:
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
   entryPoints:
     - {{ .Values.ingress.discovery.traefik.entrypoint }}
   routes:
   - services:
     - name: {{ .Release.Name }}-svc
-      port:  21027/UDP
+      port: 21027
       weight: {{ .Values.ingress.discovery.weight }}
 {{- end }}
 ---
 {{- if .Values.ingress.sync.enabled }}
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRouteTCP
 metadata:
   name: {{ .Release.Name }}-sync-ingress
   namespace: {{ .Release.Namespace }}
-  annotations:
-    kubernetes.io/ingress.class: {{ .Values.ingress.ingressClassName }}
+  labels:
+    app.kubernetes.io/component: syncthing
 spec:
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
   entryPoints:
     - {{ .Values.ingress.sync.traefik.entrypoint }}
   routes:
@@ -70,5 +75,5 @@ spec:
     priority: {{ .Values.ingress.sync.priority }}
     services:
     - name: {{ .Release.Name }}-svc
-      port:  22000
+      port: 22000
 {{- end }}

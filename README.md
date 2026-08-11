@@ -63,6 +63,7 @@ This variable is not mandatory and specifies the timezone to be configured withi
 * gui port: `8384`
 * sync port: `22000`
 * discovery port: `21027/udp`
+* An helm chart is available of in the [chart folder](https://github.com/digrouz/docker-syncthing/tree/master/chart) with an example [value.yaml](https://github.com/digrouz/docker-syncthing/tree/master/chart/values.yaml)
 
 ## Helm Chart
 

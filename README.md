@@ -65,10 +65,6 @@ This variable is not mandatory and specifies the timezone to be configured withi
 * discovery port: `21027/udp`
 * An helm chart is available of in the [chart folder](https://github.com/digrouz/docker-syncthing/tree/master/chart) with an example [value.yaml](https://github.com/digrouz/docker-syncthing/tree/master/chart/values.yaml)
 
-## Helm Chart
-
-A Helm chart is available in the `chart` folder with an example `values.yaml`.
-
 ## Issues
 
 If you encounter an issue please open a ticket at [github](https://github.com/digrouz/docker-syncthing/issues)

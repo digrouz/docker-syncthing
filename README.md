@@ -64,6 +64,10 @@ This variable is not mandatory and specifies the timezone to be configured withi
 * sync port: `22000`
 * discovery port: `21027/udp`
 
+## Helm Chart
+
+A Helm chart is available in the `chart` folder with an example `values.yaml`.
+
 ## Issues
 
 If you encounter an issue please open a ticket at [github](https://github.com/digrouz/docker-syncthing/issues)

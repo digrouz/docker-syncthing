@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "syncthing.fullname" . }}-svc
+  labels:
+    {{- include "syncthing.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 22000
+      targetPort: syncthing
+      protocol: TCP
+      name: syncthing
+    - port: 21027
+      targetPort: discovery
+      protocol: UDP
+      name: discovery
+  selector:
+    {{- include "syncthing.selectorLabels" . | nindent 4 }}

@@ -1,0 +1,143 @@
+# Default values for docker-syncthing Helm chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Override the chart name
+nameOverride: ""
+# -- Override the full release name
+fullnameOverride: ""
+
+image:
+  # -- Container image repository
+  repository: docker.io/digrouz/syncthing
+  # -- Image pull policy
+  pullPolicy: Always
+  # -- Image tag (defaults to Chart.appVersion)
+  tag: ""
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+serviceAccount:
+  # -- Whether to create a ServiceAccount
+  create: true
+  # -- Annotations to add to the ServiceAccount
+  annotations: {}
+  # -- Name of the ServiceAccount (generated if not set)
+  name: ""
+
+# -- Annotations to add to the pod
+podAnnotations: {}
+
+# -- Pod-level security context
+podSecurityContext: {}
+  # fsGroup: 1000
+
+# -- Container-level security context
+securityContext: {}
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  # -- Kubernetes Service type
+  type: ClusterIP
+  # -- Service port for Syncthing web UI
+  port: 8384
+
+persistence:
+  config:
+    # -- Enable persistent storage for Syncthing config
+    enabled: true
+    # -- Storage class (leave empty for default)
+    storageClass: ""
+    # -- Access mode for the PVC
+    accessMode: ReadWriteOnce
+    # -- Size of the persistent volume
+    size: 1Gi
+    # -- Annotations for the PVC
+    annotations: {}
+    # -- Use an existing PVC instead of creating one
+    existingClaim: ""
+
+  syncData:
+    # -- Enable persistent storage for Syncthing sync data
+    enabled: true
+    # -- Storage class (leave empty for default)
+    storageClass: ""
+    # -- Access mode for the PVC
+    accessMode: ReadWriteOnce
+    # -- Size of the persistent volume
+    size: 10Gi
+    # -- Annotations for the PVC
+    annotations: {}
+    # -- Use an existing PVC instead of creating one
+    existingClaim: ""
+
+ingress:
+  # -- Enable Ingress resource
+  enabled: false
+  # -- Ingress class name
+  className: ""
+  # -- Annotations for the Ingress
+  annotations: {}
+  # -- Ingress host configuration
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  # -- TLS configuration for the Ingress
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+# Gateway API configuration
+gateway:
+  # -- Enable Gateway API resource
+  enabled: false
+  # -- Gateway class name
+  className: gatewayclass
+  # -- Gateway listeners
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      hostname: "*"
+      tls: {}
+
+# -- Container resource requests and limits
+resources: {}
+  # limits:
+  #   cpu: 200m
+  #   memory: 256Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# -- Node selector for pod scheduling
+nodeSelector: {}
+
+# -- Tolerations for pod scheduling
+tolerations: []
+
+# -- Affinity rules for pod scheduling
+affinity: {}
+
+# -- User ID to run the application
+uid: "12345"
+
+# -- Group ID to run the application
+gid: "12345"
+
+# -- Auto upgrade at startup (0|1)
+autoupgrade: "0"
+
+# -- Timezone
+tz: "Europe/Brussels"
+
+# -- Additional environment variables for the container
+env: []
+  # - name: EXAMPLE_VAR
+  #   value: "example-value"

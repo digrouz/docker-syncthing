@@ -1,112 +1,69 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "syncthing.fullname" . }}
+  name: {{ .Release.Name }}-deployment
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "syncthing.labels" . | nindent 4 }}
+    app.kubernetes.io/component: syncthing
 spec:
   replicas: 1
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
-      {{- include "syncthing.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: syncthing
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "syncthing.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: syncthing
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "syncthing.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
-      securityContext:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        - name: syncthing
+          image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          env:
-            - name: UID
-              value: {{ .Values.uid | quote }}
-            - name: GID
-              value: {{ .Values.gid | quote }}
-            - name: AUTOUPGRADE
-              value: {{ .Values.autoupgrade | quote }}
-            - name: TZ
-              value: {{ .Values.tz | quote }}
-            {{- with .Values.env }}
-            {{- range . }}
-            - name: {{ .name }}
-              value: {{ .value | quote }}
-            {{- end }}
-            {{- end }}
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-            - name: syncthing
-              containerPort: 22000
-              protocol: TCP
-            - name: discovery
-              containerPort: 21027
-              protocol: UDP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 10
-            periodSeconds: 60
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 10
-            periodSeconds: 20
-          {{- with .Values.resources }}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            - containerPort: 8384
+            - containerPort: 22000
+            - containerPort: 21027/UDP
           volumeMounts:
-            - name: config
-              mountPath: /config
-            - name: sync-data
-              mountPath: /home/syncthing/Sync
+            - mountPath: /config
+              name: syncthing-config
+            - mountPath: /home/appuser/Sync
+              name: syncthing-syncdata
+{{- if .Values.persistence.extraVolumeMounts }}
+{{- toYaml .Values.persistence.extraVolumeMounts | nindent 12 }}
+{{- end }}
+          env:
+            - name: GID
+              value: "{{ .Values.service.gid }}"
+            - name: UID
+              value: "{{ .Values.service.uid }}"
+            - name: TZ
+              value: "{{ .Values.service.tz }}"
+            - name: AUTOUPGRADE
+              value: "{{ .Values.service.autoupgrade }}"
       volumes:
-        - name: config
-          {{- if .Values.persistence.config.enabled }}
+        - name: syncthing-config
+          {{- if eq .Values.persistence.config.type "pvc" }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.config.existingClaim | default (printf "%s-config-pvc" (include "syncthing.fullname" .)) }}
+            claimName: {{ .Release.Name }}-config-pvc
+          {{- else if eq .Values.persistence.config.type "nfs" }}
+          nfs:
+            server: {{ .Values.persistence.config.nfs.server }}
+            path: {{ .Values.persistence.config.nfs.path }}
           {{- else }}
-          emptyDir: {}
+          emptyDir: { }
           {{- end }}
-        - name: sync-data
-          {{- if .Values.persistence.syncData.enabled }}
+        - name: syncthing-syncdata
+          {{- if eq .Values.persistence.syncdata.type "pvc" }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.syncData.existingClaim | default (printf "%s-sync-pvc" (include "syncthing.fullname" .)) }}
+            claimName: {{ .Release.Name }}-syncdata-pvc
+          {{- else if eq .Values.persistence.syncdata.type "nfs" }}
+          nfs:
+            server: {{ .Values.persistence.syncdata.nfs.server }}
+            path: {{ .Values.persistence.syncdata.nfs.path }}
           {{- else }}
-          emptyDir: {}
+          emptyDir: { }
           {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+{{- if .Values.persistence.extraVolumes }}
+{{- toYaml .Values.persistence.extraVolumes | nindent 8 }}
+{{- end }}

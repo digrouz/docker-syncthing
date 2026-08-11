@@ -9,23 +9,10 @@ To access Syncthing:
   {{- range .Values.ingress.hosts }}
     http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
   {{- end }}
-{{- else if contains "NodePort" .Values.service.type }}
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "syncthing.fullname" . }})
-  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo "Syncthing URL: http://$NODE_IP:$NODE_PORT"
-{{- else if contains "LoadBalancer" .Values.service.type }}
-  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-  Watch the status with:
-    kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "syncthing.fullname" . }}
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "syncthing.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo "Syncthing URL: http://$SERVICE_IP:{{ .Values.service.port }}"
-{{- else if contains "ClusterIP" .Values.service.type }}
-  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "syncthing.fullname" . }}-svc {{ .Values.service.port }}:{{ .Values.service.port }}
-  echo "Syncthing URL: http://127.0.0.1:{{ .Values.service.port }}"
 {{- end }}
 
 Syncthing Sync Port: 22000
 Syncthing Discovery Port: 21027/UDP
 
 Config volume: /config
-Sync data volume: /home/syncthing/Sync
+Sync data volume: /home/appuser/Sync

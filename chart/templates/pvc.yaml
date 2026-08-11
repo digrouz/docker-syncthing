@@ -1,0 +1,38 @@
+{{- if eq .Values.persistence.config.type "pvc" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-config-pvc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: syncthing 
+spec:
+  accessModes:
+    - {{ .Values.persistence.config.pvc.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.config.pvc.size | quote }}
+  {{- if .Values.persistence.config.pvc.storageClass }}
+  storageClassName: {{ .Values.persistence.config.pvc.storageClass | quote }}
+  {{- end }}
+{{- end }}
+--- 
+{{- if eq .Values.persistence.syncdata.type "pvc" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-syncdata-pvc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: syncthing 
+spec:
+  accessModes:
+    - {{ .Values.persistence.syncdata.pvc.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.syncdata.pvc.size | quote }}
+  {{- if .Values.persistence.syncdata.pvc.storageClass }}
+  storageClassName: {{ .Values.persistence.syncdata.pvc.storageClass | quote }}
+  {{- end }}
+{{- end }} 
+

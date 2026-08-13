@@ -2,28 +2,55 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-deployment
+  name: {{ include "syncthing.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/component: syncthing
+    {{- include "syncthing.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/component: syncthing
+      {{- include "syncthing.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
-        app.kubernetes.io/component: syncthing
+        {{- include "syncthing.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       containers:
         - name: syncthing
           image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.image.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: 8384
             - containerPort: 22000
-            - containerPort: 21027/UDP
+            - containerPort: 21027/udp
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8384
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8384
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
           volumeMounts:
             - mountPath: /config
               name: syncthing-config
@@ -45,7 +72,7 @@ spec:
         - name: syncthing-config
           {{- if eq .Values.persistence.config.type "pvc" }}
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-config-pvc
+            claimName: {{ include "syncthing.fullname" . }}-config-pvc
           {{- else if eq .Values.persistence.config.type "nfs" }}
           nfs:
             server: {{ .Values.persistence.config.nfs.server }}
@@ -56,7 +83,7 @@ spec:
         - name: syncthing-syncdata
           {{- if eq .Values.persistence.syncdata.type "pvc" }}
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-syncdata-pvc
+            claimName: {{ include "syncthing.fullname" . }}-syncdata-pvc
           {{- else if eq .Values.persistence.syncdata.type "nfs" }}
           nfs:
             server: {{ .Values.persistence.syncdata.nfs.server }}

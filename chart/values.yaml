@@ -1,5 +1,7 @@
 ## @section Kubernetes settings
 ##
+nameOverride: ""
+fullnameOverride: ""
 image:
   ## @param image.registry syncthing image registry
   ##
@@ -16,6 +18,19 @@ image:
   ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
   ##
   pullPolicy: Always
+  ## @param image.resources Requests and limits for syncthing container
+  ##
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+## @section Deployment Configuration
+replicaCount: 1
+podAnnotations: {}
+podLabels: {}
 ## @section Service Configuration
 ##
 service:
@@ -57,17 +72,30 @@ ingress:
       cert-manager.io/cluster-issuer: letsencrypt-prod
   ## @param Ingress configuration for syncthing sync TCP ingress
   ##
-  sync:
-    ## @param ingress.sync.enabled Enable ingress for syncthing sync TCP
+  synctcp:
+    ## @param ingress.synctcp.enabled Enable ingress for syncthing sync TCP
     ##
     enabled: false
-    ## @param ingress.sync.traefik.entrypoint Traefik entrypoint for syncthing sync TCP ingress
+    ## @param ingress.synctcp.traefik.entrypoint Traefik entrypoint for syncthing sync TCP ingress
     ##
     traefik:
       entrypoint: tcp-sync
-    ## @param ingress.sync.weight Weight for syncthing sync TCP ingress
+    ## @param ingress.synctcp.weight Weight for syncthing sync TCP ingress
     ##
     priority: 10
+  ## @param Ingress configuration for syncthing sync UDP ingress
+  ##
+  syncudp:
+    ## @param ingress.syncudp.enabled Enable ingress for syncthing sync UDP
+    ##
+    enabled: false
+    ## @param ingress.syncudp.traefik.entrypoint Traefik entrypoint for syncthing sync UDP ingress
+    ##
+    traefik:
+      entrypoint: udp-sync
+    ## @param ingress.syncudp.weight Weight for syncthing sync UDP ingress
+    ##
+    weight: 10
   ## @param Ingress configuration for syncthing discovery UDP ingress
   ##
   discovery:

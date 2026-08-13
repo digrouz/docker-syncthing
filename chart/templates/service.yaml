@@ -2,20 +2,28 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-svc
+  name: {{ include "syncthing.fullname" . }}-svc
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/component: syncthing
+    {{- include "syncthing.labels" . | nindent 4 }}
 spec:
+  type: ClusterIP
   ports:
   - port: 8384
     name: webui
     protocol: TCP
+    targetPort: 8384
   - port: 22000
-    name: sync
+    name: synctcp
     protocol: TCP
+    targetPort: 22000
+  - port: 22000
+    name: syncudp
+    protocol: UDP
+    targetPort: 22000
   - port: 21027
     name: discovery
     protocol: UDP
+    targetPort: 21027
   selector:
-    app.kubernetes.io/component: syncthing
+    {{- include "syncthing.selectorLabels" . | nindent 4 }}

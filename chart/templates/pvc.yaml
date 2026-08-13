@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Release.Name }}-config-pvc
+  name: {{ include "syncthing.fullname" . }}-config-pvc
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/component: syncthing 
+    {{- include "syncthing.labels" . | nindent 4 }}
 spec:
   accessModes:
     - {{ .Values.persistence.config.pvc.accessMode | quote }}
@@ -21,10 +21,10 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Release.Name }}-syncdata-pvc
+  name: {{ include "syncthing.fullname" . }}-syncdata-pvc
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/component: syncthing 
+    {{- include "syncthing.labels" . | nindent 4 }}
 spec:
   accessModes:
     - {{ .Values.persistence.syncdata.pvc.accessMode | quote }}

@@ -3,10 +3,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-webui-ingress
+  name: {{ include "syncthing.fullname" . }}-webui-ingress
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/component: syncthing
+    {{- include "syncthing.labels" . | nindent 4 }}
   {{- if .Values.ingress.webui.annotations }}
   annotations:
     {{- range $key, $value := .Values.ingress.webui.annotations }}
@@ -27,7 +27,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ .Release.Name }}-svc
+            name: {{ include "syncthing.fullname" . }}-svc
             port:
               name: webui
   {{- if and .Values.ingress.webui.tls .Values.ingress.webui.host }}
@@ -42,38 +42,56 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRouteUDP
 metadata:
-  name: {{ .Release.Name }}-discovery-ingress
+  name: {{ include "syncthing.fullname" . }}-discovery-ingress
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/component: syncthing
+    {{- include "syncthing.labels" . | nindent 4 }}
 spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
   entryPoints:
     - {{ .Values.ingress.discovery.traefik.entrypoint }}
   routes:
   - services:
-    - name: {{ .Release.Name }}-svc
+    - name: {{ include "syncthing.fullname" . }}-svc
       port: 21027
       weight: {{ .Values.ingress.discovery.weight }}
 {{- end }}
----
-{{- if .Values.ingress.sync.enabled }}
+{{- if .Values.ingress.synctcp.enabled }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRouteTCP
 metadata:
-  name: {{ .Release.Name }}-sync-ingress
+  name: {{ include "syncthing.fullname" . }}-synctcp-ingress
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/component: syncthing
+    {{- include "syncthing.labels" . | nindent 4 }}
 spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
   entryPoints:
-    - {{ .Values.ingress.sync.traefik.entrypoint }}
+    - {{ .Values.ingress.synctcp.traefik.entrypoint }}
   routes:
   - match: HostSNI(`*`)
-    priority: {{ .Values.ingress.sync.priority }}
+    priority: {{ .Values.ingress.synctcp.priority }}
     services:
-    - name: {{ .Release.Name }}-svc
+    - name: {{ include "syncthing.fullname" . }}-svc
       port: 22000
+{{- end }}
+{{- if .Values.ingress.syncudp.enabled }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteUDP
+metadata:
+  name: {{ include "syncthing.fullname" . }}-syncudp-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "syncthing.labels" . | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
+  entryPoints:
+    - {{ .Values.ingress.syncudp.traefik.entrypoint }}
+  routes:
+  - services:
+    - name: {{ include "syncthing.fullname" . }}-svc
+      port: 22000
+      weight: {{ .Values.ingress.syncudp.weight }}
 {{- end }}

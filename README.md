@@ -25,7 +25,7 @@ Your data is your data alone and you deserve to choose where it is stored, if it
 ## Usage
 
     docker create --name=syncthing  \
-      -v <path to data folder>:/home/syncthing/Sync  \
+      -v <path to data folder>:/home/appuser/Sync  \
       -v <path to config>:/config   \
       -e UID=<UID default:12345> \
       -e GID=<GID default:12345> \

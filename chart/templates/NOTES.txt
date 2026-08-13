@@ -9,7 +9,7 @@ To access Syncthing:
   Syncthing Web UI is available via Ingress:
     http{{ if .Values.ingress.webui.tls }}s{{ end }}://{{ .Values.ingress.webui.host }}
   {{- else }}
-  Syncthing Web UI is exposed via Service {{ .Release.Name }}-svc on port 8384.
+  Syncthing Web UI is exposed via Service {{ include "syncthing.fullname" . }}-svc on port 8384.
   {{- end }}
 {{- end }}
 

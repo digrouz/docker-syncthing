@@ -22,7 +22,7 @@ RUN set -x && \
     && \
     curl -SsL  https://github.com/syncthing/syncthing/releases/download/v${SYNCTHING_VERSION}/syncthing-linux-${SYNCTHING_ARCH}-v${SYNCTHING_VERSION}.tar.gz -o /tmp/syncthing.tar.gz && \
     tar xzvf /tmp/syncthing.tar.gz -C /tmp && \
-    mv /tmp/syncthing-linux-amd64-v${SYNCTHING_VERSION} /opt/syncthing && \
+    mv /tmp/syncthing-linux-${SYNCTHING_ARCH}-v${SYNCTHING_VERSION} /opt/syncthing && \
     apk add --no-cache --virtual=run-deps \
       ca-certificates \
     && \
@@ -35,4 +35,4 @@ RUN set -x && \
 VOLUME ["/config"]
 
 # Expose ports
-EXPOSE 8384 22000 21027/udp
+EXPOSE 8384 22000 22000/udp 21027/udp

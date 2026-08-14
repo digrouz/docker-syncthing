@@ -34,6 +34,7 @@ spec:
           ports:
             - containerPort: 8384
             - containerPort: 22000
+            - containerPort: 22000/udp
             - containerPort: 21027/udp
           livenessProbe:
             httpGet:

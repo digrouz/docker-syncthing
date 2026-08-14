@@ -56,9 +56,6 @@ ingress:
     ## @param ingress.webui.enabled Enable ingress for syncthing webui
     ##
     enabled: true
-    ## @param ingress.webui.ingressClassName Ingress class name for syncthing webui ingress
-    ##
-    ingressClassName: traefik
     ## @param ingress.webui.host Host for syncthing webui ingress
     ##
     host: ""

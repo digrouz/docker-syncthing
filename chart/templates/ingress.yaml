@@ -8,10 +8,16 @@ metadata:
   labels:
     {{- include "syncthing.labels" . | nindent 4 }}
   {{- if .Values.ingress.webui.annotations }}
+  {{- $anns := dict }}
+  {{- range $key, $value := .Values.ingress.webui.annotations }}
+  {{- if $value }}
+  {{- $_ := set $anns $key $value }}
+  {{- end }}
+  {{- end }}
+  {{- if $anns }}
   annotations:
-    {{- range $key, $value := .Values.ingress.webui.annotations }}
-    {{ $key }}: {{ $value | quote }}
-    {{- end }}
+    {{- toYaml $anns | nindent 4 }}
+  {{- end }}
   {{- end }}
 spec:
   {{- if .Values.ingress.ingressClassName }}
@@ -34,7 +40,7 @@ spec:
   tls:
     - hosts:
         - {{ .Values.ingress.webui.host }}
-      secretName: {{ .Values.ingress.webui.host }}-tls
+      secretName: {{ .Values.ingress.webui.tlsSecretName | default (printf "%s-tls" .Values.ingress.webui.host) | quote }}
   {{- end }}
 {{- end }}
 {{- if .Values.ingress.discovery.enabled }}

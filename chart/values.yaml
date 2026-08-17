@@ -12,8 +12,10 @@ image:
   ##
   ## @param image.tag syncthing image tag
   ## Ref: https://hub.docker.com/r/digrouz/syncthing/tags
+  ## Note: the CI workflow currently only publishes the `latest` and `alpine` tags.
+  ## For a reproducible deploy, push a versioned tag (e.g. 2.1.3) and use it here.
   ##
-  tag: "latest"
+  tag: "alpine"
   ## @param image.pullPolicy syncthing image pull policy
   ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
   ##
@@ -28,12 +30,29 @@ image:
       cpu: 500m
       memory: 512Mi
 ## @section Deployment Configuration
+##
+## @param replicaCount Number of syncthing replicas.
+## Must be 1: syncthing is a single-instance application and the volumes use ReadWriteOnce access.
 replicaCount: 1
 podAnnotations: {}
 podLabels: {}
+## @section Security Configuration
+##
+## @param securityContext.allowPrivilegeEscalation Set no_new_privs on the syncthing container
+## @param securityContext.seccompProfile Seccomp profile for the syncthing container (RuntimeDefault, Localhost or Unconfined)
+##
+## Note: runAsUser / runAsNonRoot are intentionally not set. The s6-overlay entrypoint
+## starts as root and drops privileges to appuser (s6-setuidgid), and the fixattrs
+## service needs root to chown the config volume.
+securityContext:
+  allowPrivilegeEscalation: false
+  seccompProfile: RuntimeDefault
 ## @section Service Configuration
 ##
 service:
+  ## @param service.type Kubernetes Service type (ClusterIP, NodePort or LoadBalancer)
+  ##
+  type: ClusterIP
   ## @param service.uid user id running syncthing
   ##
   uid: 12345
@@ -62,7 +81,14 @@ ingress:
     ## @param ingress.webui.tls Enable TLS for syncthing webui ingress
     ##
     tls: true
+    ## @param ingress.webui.tlsSecretName Name of the existing TLS secret for the webui ingress
+    ## If empty, "<ingress.webui.host>-tls" is used (cert-manager convention)
+    ##
+    tlsSecretName: ""
     ## @param ingress.webui.annotations Annotations for syncthing webui ingress
+    ## Note: the Syncthing GUI only authenticates with its own credentials.
+    ## When exposing the webui beyond your LAN, configure an auth middleware here
+    ## (e.g. router.middlewares pointing to a basic-auth/oauth middleware).
     ##
     annotations:
       traefik.ingress.kubernetes.io/router.middlewares: ""
@@ -111,8 +137,9 @@ ingress:
 persistence:
   config:
     ## @param persistence.config.type Type of persistence for syncthing config
-    ## If set to pvc, a persistent volume claim will be created
+    ## If set to pvc, a persistent volume claim will be created (unless an existingClaim is provided)
     ## If set to nfs, a network file system will be used
+    ## If set to emptyDir, a temporary volume will be used (data is lost on pod restart)
     ##
     type: pvc
     ## Specific persistence options for syncthing config using a persistent volume claim
@@ -124,6 +151,10 @@ persistence:
       storageClass: longhorn
       ## @param persistence.config.pvc.existingClaim Existing persistent volume claim for syncthing config
       ## If set, the config will be stored in the existing persistent volume claim
+      ## and no new PVC will be created
+      ##
+      existingClaim: ""
+      ## @param persistence.config.pvc.accessMode Access mode for syncthing config
       ##
       accessMode: ReadWriteOnce
       ## @param persistence.config.pvc.size Size of the persistent volume for syncthing config
@@ -143,8 +174,9 @@ persistence:
       path: ""
   syncdata:
     ## @param persistence.syncdata.type Type of persistence for syncthing syncdata
-    ## If set to pvc, a persistent volume claim will be created
+    ## If set to pvc, a persistent volume claim will be created (unless an existingClaim is provided)
     ## If set to nfs, a network file system will be used
+    ## If set to emptyDir, a temporary volume will be used (data is lost on pod restart)
     ##
     type: pvc
     ## Specific persistence options for syncthing syncdata using a persistent volume claim
@@ -154,6 +186,11 @@ persistence:
       ## If not set, the default storage class will be used
       ##
       storageClass: longhorn
+      ## @param persistence.syncdata.pvc.existingClaim Existing persistent volume claim for syncthing syncdata
+      ## If set, the syncdata will be stored in the existing persistent volume claim
+      ## and no new PVC will be created
+      ##
+      existingClaim: ""
       ## @param persistence.syncdata.pvc.accessMode Access mode for syncthing syncdata
       ## If not set, the default access mode will be used
       ##
@@ -187,6 +224,3 @@ persistence:
   ##     mountPath: /etc/my-config
   extraVolumeMounts: []
 extraObjects: []
-
-
-

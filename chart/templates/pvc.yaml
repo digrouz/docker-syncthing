@@ -1,4 +1,4 @@
-{{- if eq .Values.persistence.config.type "pvc" }}
+{{- if and (eq .Values.persistence.config.type "pvc") (not .Values.persistence.config.pvc.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -17,7 +17,7 @@ spec:
   {{- end }}
 {{- end }}
 --- 
-{{- if eq .Values.persistence.syncdata.type "pvc" }}
+{{- if and (eq .Values.persistence.syncdata.type "pvc") (not .Values.persistence.syncdata.pvc.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

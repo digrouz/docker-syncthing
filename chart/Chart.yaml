@@ -2,5 +2,14 @@ apiVersion: v2
 name: syncthing
 description: A Helm chart for syncthing
 type: application
-version: 0.1.0
-appVersion: "latest"
+home: https://syncthing.net
+keywords:
+  - syncthing
+  - file-sync
+sources:
+  - https://github.com/digrouz/docker-syncthing
+maintainers:
+  - name: digrouz
+    email: nicolas.digregorio@gmail.com
+version: 0.1.1
+appVersion: "2.1.3"

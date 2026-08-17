@@ -1,3 +1,6 @@
+{{- if gt (int .Values.replicaCount) 1 }}
+{{- fail (printf "syncthing is a single-instance application: replicaCount must be 1 (got %v)" .Values.replicaCount) }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -8,6 +11,8 @@ metadata:
     {{- include "syncthing.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "syncthing.selectorLabels" . | nindent 6 }}
@@ -23,6 +28,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: syncthing
           image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
@@ -32,24 +38,46 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           ports:
-            - containerPort: 8384
-            - containerPort: 22000
-            - containerPort: 22000/udp
-            - containerPort: 21027/udp
+            - name: webui
+              containerPort: 8384
+              protocol: TCP
+            - name: synctcp
+              containerPort: 22000
+              protocol: TCP
+            - name: syncudp
+              containerPort: 22000
+              protocol: UDP
+            - name: discovery
+              containerPort: 21027
+              protocol: UDP
+          {{- if .Values.securityContext }}
+          securityContext:
+            allowPrivilegeEscalation: {{ .Values.securityContext.allowPrivilegeEscalation }}
+            {{- if .Values.securityContext.seccompProfile }}
+            seccompProfile:
+              type: {{ .Values.securityContext.seccompProfile }}
+            {{- end }}
+          {{- end }}
+          startupProbe:
+            httpGet:
+              path: /.health
+              port: 8384
+            failureThreshold: 12
+            periodSeconds: 5
+            timeoutSeconds: 5
           livenessProbe:
             httpGet:
-              path: /
+              path: /.health
               port: 8384
-            initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /
+              path: /.health
               port: 8384
-            initialDelaySeconds: 15
-            periodSeconds: 15
+            initialDelaySeconds: 5
+            periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
           volumeMounts:
@@ -73,24 +101,28 @@ spec:
         - name: syncthing-config
           {{- if eq .Values.persistence.config.type "pvc" }}
           persistentVolumeClaim:
-            claimName: {{ include "syncthing.fullname" . }}-config-pvc
+            claimName: {{ .Values.persistence.config.pvc.existingClaim | default (printf "%s-config-pvc" (include "syncthing.fullname" .)) | quote }}
           {{- else if eq .Values.persistence.config.type "nfs" }}
           nfs:
-            server: {{ .Values.persistence.config.nfs.server }}
-            path: {{ .Values.persistence.config.nfs.path }}
-          {{- else }}
+            server: {{ .Values.persistence.config.nfs.server | quote }}
+            path: {{ .Values.persistence.config.nfs.path | quote }}
+          {{- else if eq .Values.persistence.config.type "emptyDir" }}
           emptyDir: { }
+          {{- else }}
+          {{- fail (printf "persistence.config.type must be one of [pvc, nfs, emptyDir], got %q" .Values.persistence.config.type) }}
           {{- end }}
         - name: syncthing-syncdata
           {{- if eq .Values.persistence.syncdata.type "pvc" }}
           persistentVolumeClaim:
-            claimName: {{ include "syncthing.fullname" . }}-syncdata-pvc
+            claimName: {{ .Values.persistence.syncdata.pvc.existingClaim | default (printf "%s-syncdata-pvc" (include "syncthing.fullname" .)) | quote }}
           {{- else if eq .Values.persistence.syncdata.type "nfs" }}
           nfs:
-            server: {{ .Values.persistence.syncdata.nfs.server }}
-            path: {{ .Values.persistence.syncdata.nfs.path }}
-          {{- else }}
+            server: {{ .Values.persistence.syncdata.nfs.server | quote }}
+            path: {{ .Values.persistence.syncdata.nfs.path | quote }}
+          {{- else if eq .Values.persistence.syncdata.type "emptyDir" }}
           emptyDir: { }
+          {{- else }}
+          {{- fail (printf "persistence.syncdata.type must be one of [pvc, nfs, emptyDir], got %q" .Values.persistence.syncdata.type) }}
           {{- end }}
 {{- if .Values.persistence.extraVolumes }}
 {{- toYaml .Values.persistence.extraVolumes | nindent 8 }}

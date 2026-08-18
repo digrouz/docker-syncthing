@@ -60,25 +60,25 @@ spec:
           {{- end }}
           startupProbe:
             httpGet:
-              path: /.health
+              path: /rest/noauth/health
               port: 8384
-            failureThreshold: 12
-            periodSeconds: 5
-            timeoutSeconds: 5
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 1
           livenessProbe:
             httpGet:
-              path: /.health
+              path: /rest/noauth/health
               port: 8384
-            periodSeconds: 30
-            timeoutSeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /.health
+              path: /rest/noauth/health
               port: 8384
             initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
             failureThreshold: 3
           volumeMounts:
             - mountPath: /config
